@@ -1,6 +1,7 @@
 package levenshtein
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -38,7 +39,7 @@ func levenshteinDistance(s1, s2 string) int {
 		matrix[i] = make([]int, len(s2)+1)
 	}
 
-	for i := 0; i <= len(s2); i++ {
+	for i := 0; i <= len(s1); i++ {
 		matrix[i][0] = i
 	}
 
@@ -67,34 +68,33 @@ func levenshteinDistance(s1, s2 string) int {
 func hasPrefix(processName, arg string) string {
 	has := strings.HasPrefix(processName, arg)
 	if has {
+		fmt.Print(has)
 		return processName
 	} else {
+		fmt.Print(has)
 		return ""
 	}
 }
 
-var suggestions = make([]string, 0)
-
 func Loop(arg string) ([]string, int) {
+	var suggestions = make([]string, 0)
 
 	for pname, pid := range db {
-		if arg != pname {
-			val := hasPrefix(pname, arg)
-			if val != "" {
-				return suggestions, pid
-			} else {
-				dist := levenshteinDistance(pname, arg)
-				val := calculateThreshold(dist, pname, arg)
-				if val {
-					suggestions = append(suggestions, pname)
-				} else {
-					return suggestions, 0
-				}
-			}
-		} else {
+
+		if arg == pname {
 			return suggestions, pid
 		}
 
+		val := hasPrefix(pname, arg)
+		if val != "" {
+			suggestions = append(suggestions, pname)
+		} else {
+			dist := levenshteinDistance(pname, arg)
+			val := calculateThreshold(dist, pname, arg)
+			if val {
+				suggestions = append(suggestions, pname)
+			}
+		}
 	}
 
 	return suggestions, 0
