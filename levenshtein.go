@@ -73,32 +73,29 @@ func hasPrefix(processName, arg string) string {
 	}
 }
 
-// func HasProcess(arg string) string {
-// 	has := hasPrefix("", arg)
-// 	if has != "" {
-// 		return "processName"
-// 	} else {
-// 		dist := LevenshteinDistance("", arg)
-// 	}
-// }
+var suggestions = make([]string, 0)
 
-func Loop(arg string) (string, int) {
+func Loop(arg string) ([]string, int) {
 
-	// yet to apply if both the case fails
 	for pname, pid := range db {
-		val := hasPrefix(pname, arg)
-		if val != "" {
-			return val, pid
-		} else {
-			dist := levenshteinDistance(pname, arg)
-			val := calculateThreshold(dist, pname, arg)
-			if val {
-				return pname, pid
+		if arg != pname {
+			val := hasPrefix(pname, arg)
+			if val != "" {
+				return suggestions, pid
 			} else {
-				return "no such process exists", 0
+				dist := levenshteinDistance(pname, arg)
+				val := calculateThreshold(dist, pname, arg)
+				if val {
+					suggestions = append(suggestions, pname)
+				} else {
+					return suggestions, 0
+				}
 			}
+		} else {
+			return suggestions, pid
 		}
+
 	}
 
-	return "", 0
+	return suggestions, 0
 }
