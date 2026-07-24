@@ -1,9 +1,24 @@
-package main
+package levenshtein
 
 import (
-	"fmt"
 	"strings"
 )
+
+var db = map[string]int{
+	"init":            1,
+	"init-systemd(Ub": 2,
+	"snapfuse":        162,
+}
+
+func calculateThreshold(dist int, s1, s2 string) bool {
+	minLen := min(len(s1), len(s2))
+	val := (dist / minLen) * 100
+	if val < 45 {
+		return true
+	} else {
+		return false
+	}
+}
 
 func levenshteinDistance(s1, s2 string) int {
 	s1 = strings.ToLower(s1)
@@ -49,7 +64,41 @@ func levenshteinDistance(s1, s2 string) int {
 	return matrix[len(s1)][len(s2)]
 }
 
-func main() {
-	val := (levenshteinDistance("replace", "delete"))
-	fmt.Println(val)
+func hasPrefix(processName, arg string) string {
+	has := strings.HasPrefix(processName, arg)
+	if has {
+		return processName
+	} else {
+		return ""
+	}
+}
+
+// func HasProcess(arg string) string {
+// 	has := hasPrefix("", arg)
+// 	if has != "" {
+// 		return "processName"
+// 	} else {
+// 		dist := LevenshteinDistance("", arg)
+// 	}
+// }
+
+func Loop(arg string) (string, int) {
+
+	// yet to apply if both the case fails
+	for pname, pid := range db {
+		val := hasPrefix(pname, arg)
+		if val != "" {
+			return val, pid
+		} else {
+			dist := levenshteinDistance(pname, arg)
+			val := calculateThreshold(dist, pname, arg)
+			if val {
+				return pname, pid
+			} else {
+				return "no such process exists", 0
+			}
+		}
+	}
+
+	return "", 0
 }
